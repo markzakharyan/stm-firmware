@@ -89,7 +89,7 @@ class DACController : public Peripheral {
                                       String(channel_index));
     }
     return OperationResult::Success(
-        String(dac_channels[channel_index]->getVoltage()));
+        String(dac_channels[channel_index]->getVoltage(), 6));
   }
 
   void setCalibration(int channel_index, float offset, float gain) {

@@ -125,7 +125,7 @@ class DACChannel {
   }
 
  private:
-  int voltageToDecimal(float voltage, byte *DB1, byte *DB2, byte *DB3) {
+  void voltageToDecimal(float voltage, byte *DB1, byte *DB2, byte *DB3) {
     int decimal;
     if (voltage >= 0) {
       decimal = voltage * 524287 / full_scale;

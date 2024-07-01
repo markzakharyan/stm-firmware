@@ -21,6 +21,7 @@ class ADCController : public Peripheral {
     //   channel->initialize();
     // }
     // Serial.println("ADC INITIALIZATION COMPLETE");
+    return OperationResult::Success();
   }
 
   void setup() override {
@@ -35,9 +36,9 @@ class ADCController : public Peripheral {
     REGISTER_MEMBER_FUNCTION_1(registry, this, readChannelVoltage, "GET_ADC");
   }
 
-  void addBoard(int data_ready, int reset_pin, int data_sync_pin) {
+  void addBoard(int data_sync_pin, int data_ready, int reset_pin) {
     ADCBoard* newBoard =
-        new ADCBoard(commsController, data_ready, reset_pin, data_sync_pin);
+        new ADCBoard(commsController, data_sync_pin, data_ready, reset_pin);
     adc_boards.push_back(newBoard);
   }
 

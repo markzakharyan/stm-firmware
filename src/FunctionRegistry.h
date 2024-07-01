@@ -48,7 +48,7 @@ class FunctionRegistry {
 
     auto wrapper = [func = std::forward<Func>(func)](
                        const std::vector<float>& args) -> OperationResult {
-      if constexpr (is_void_return<decltype(func)>::value) {
+      if (is_void_return<decltype(func)>::value) {
         func(args);
         return OperationResult::Success();
       } else {
@@ -66,7 +66,7 @@ class FunctionRegistry {
     upper_name.toUpperCase();
     for (const auto& entry : functions) {
       if (entry.name == upper_name) {
-        if (entry.argCount > 0 && entry.argCount != args.size()) {
+        if (entry.argCount > 0 && static_cast<int>(entry.argCount) != static_cast<int>(args.size())) {
           result = OperationResult::Failure("Argument count mismatch");
           return ExecuteResult::ArgumentError;
         }

@@ -28,8 +28,8 @@ void setup() {
   }
 
 
-  for (int i = 0; i < sizeof(drdy)/sizeof(drdy[0]); i++) {
-    adcController.addBoard(drdy[i], reset[i], adc_sync_pins[i]);
+  for (unsigned int i = 0; i < sizeof(drdy)/sizeof(drdy[0]); i++) {
+      adcController.addBoard(adc_sync_pins[i], drdy[i], reset[i]);
   }
 }
 

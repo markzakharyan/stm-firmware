@@ -27,21 +27,22 @@ class ADCBoard {
     *DB2 = ((byte)(s & 0xFF));
   }
 
-  void waitDRDY() {
+  void waitDataReady() {
     int count = 0;
     while (digitalRead(data_ready_pin) == HIGH && count < 2000) {
       count = count + 1;
       delay(1);
     }
   }
+  
 
  public:
-  ADCBoard(PeripheralCommsController &commsController, int data_ready_pin,
-             int reset_pin, int sync_pin)
-      : data_ready_pin(data_ready_pin),
-        reset_pin(reset_pin),
-        sync_pin(sync_pin),
-        commsController(commsController) {}
+  ADCBoard(PeripheralCommsController &commsController, int sync_pin,
+               int data_ready_pin, int reset_pin)
+        : sync_pin(sync_pin),
+          data_ready_pin(data_ready_pin),
+          reset_pin(reset_pin),
+          commsController(commsController) {}
 
   void setup() {
     pinMode(reset_pin, OUTPUT);
@@ -72,7 +73,7 @@ class ADCBoard {
     commsController.sendByte(0x48);  // Indicates mode register to start
                                      // single convertion in dump mode
     digitalWrite(sync_pin, HIGH);
-    waitDRDY();  // Waits until convertion finishes
+    waitDataReady();  // Waits until convertion finishes
     digitalWrite(sync_pin, LOW);
     commsController.sendByte(
         0x48 + channel_index);  // Indcates comm register to read data
@@ -102,5 +103,7 @@ class ADCBoard {
         return 0.0;
         break;
     }
+
+    return 0.0;
   }
 };

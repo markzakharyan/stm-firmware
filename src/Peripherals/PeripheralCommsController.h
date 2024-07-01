@@ -37,7 +37,10 @@ class PeripheralCommsController {
   template <typename... byte>
   void sendBytes(byte... args) {
     SPI.beginTransaction(spiSettings);
-    (SPI.transfer(static_cast<byte>(args)), ...);
+    // (SPI.transfer(static_cast<byte>(args)), ...);
+    for (auto b : {args...}) {
+      SPI.transfer(b);
+    }
     SPI.endTransaction();
   }
 

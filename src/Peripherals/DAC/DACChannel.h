@@ -30,7 +30,7 @@ class DACChannel {
   // initialize is the command INITIALIZE, setup is called in main::setup
   void initialize() {
     digitalWrite(cs_pin, LOW);
-    commsController.sendBytes(
+    commsController.sendBytesInTransaction(
         32, 0,
         2);  // Write to control register, Reserved byte, Unclamp DAC from GND
     digitalWrite(cs_pin, HIGH);
@@ -53,7 +53,7 @@ class DACChannel {
     voltageToDecimal(voltage / gain_error - offset_error, &b1, &b2, &b3);
 
     digitalWrite(cs_pin, LOW);
-    commsController.sendBytes(b1, b2, b3);  // send command byte to DAC; MS data
+    commsController.sendBytesInTransaction(b1, b2, b3);  // send command byte to DAC; MS data
                                             // bits, DAC2; LS 8 data bits, DAC2
 
     digitalWrite(cs_pin, HIGH);
@@ -74,7 +74,7 @@ class DACChannel {
     voltageToDecimal(voltage / gain_error - offset_error, &b1, &b2, &b3);
 
     digitalWrite(cs_pin, LOW);
-    commsController.sendBytes(b1, b2, b3);  // send command byte to DAC; MS data
+    commsController.sendBytesInTransaction(b1, b2, b3);  // send command byte to DAC; MS data
                                             // bits, DAC2; LS 8 data bits, DAC2
     digitalWrite(cs_pin, HIGH);
 
@@ -109,7 +109,7 @@ class DACChannel {
     intToThreeBytes(decimal, &b1, &b2, &b3);
 
     digitalWrite(cs_pin, LOW);
-    commsController.sendBytes(b1, b2, b3);  // send command byte to DAC; MS data
+    commsController.sendBytesInTransaction(b1, b2, b3);  // send command byte to DAC; MS data
                                             // bits, DAC2; LS 8 data bits, DAC2
     digitalWrite(cs_pin, HIGH);
 

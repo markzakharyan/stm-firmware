@@ -7,11 +7,11 @@
 class PeripheralCommsController {
  private:
   SPISettings spiSettings;
-  bool spiInitialized;
+  static bool spiInitialized;
 
  public:
   PeripheralCommsController(SPISettings spi_s)
-      : spiSettings(spi_s), spiInitialized(false) {}
+      : spiSettings(spi_s) {}
 
   void setup() {
     if (!spiInitialized) {
@@ -20,13 +20,33 @@ class PeripheralCommsController {
     }
   }
 
-  void sendByte(byte b) {
+  void beginTransaction() {
     SPI.beginTransaction(spiSettings);
-    SPI.transfer(b);
+  }
+
+  void endTransaction() {
     SPI.endTransaction();
   }
 
+  void sendByte(byte b) {
+    SPI.transfer(b);
+  }
+
   void sendBytes(const byte* data, size_t len) {
+    for (size_t i = 0; i < len; ++i) {
+      SPI.transfer(data[i]);
+    }
+  }
+
+  template <typename... byte>
+  void sendBytes(byte... args) {
+    // (SPI.transfer(static_cast<byte>(args)), ...);
+    for (auto b : {args...}) {
+      SPI.transfer(b);
+    }
+  }
+
+  void sendBytesInTransaction(const byte* data, size_t len) {
     SPI.beginTransaction(spiSettings);
     for (size_t i = 0; i < len; ++i) {
       SPI.transfer(data[i]);
@@ -35,7 +55,7 @@ class PeripheralCommsController {
   }
 
   template <typename... byte>
-  void sendBytes(byte... args) {
+  void sendBytesInTransaction(byte... args) {
     SPI.beginTransaction(spiSettings);
     // (SPI.transfer(static_cast<byte>(args)), ...);
     for (auto b : {args...}) {
@@ -45,17 +65,13 @@ class PeripheralCommsController {
   }
 
   byte receiveByte() {
-    SPI.beginTransaction(spiSettings);
     byte b = SPI.transfer(0);
-    SPI.endTransaction();
     return b;
   }
 
   void receiveBytes(byte* data, size_t len) {
-    SPI.beginTransaction(spiSettings);
     for (size_t i = 0; i < len; ++i) {
       data[i] = SPI.transfer(0);
     }
-    SPI.endTransaction();
   }
 };

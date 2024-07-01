@@ -14,23 +14,25 @@ FunctionRegistry registry;
 UserIOHandler userIOHandler(registry);
 PeripheralCommsController dacCommsController(DAC_SPI_SETTINGS);
 PeripheralCommsController adcCommsController(ADC_SPI_SETTINGS);
+bool PeripheralCommsController::spiInitialized = false;
 DACController dacController(registry, dacCommsController);
 ADCController adcController(registry, adcCommsController);
 
 void setup() {
-  userIOHandler.initialize();
-  dacController.setup();
-  adcController.setup();
-  
+  userIOHandler.setup();
 
+  
   for (int i : dac_cs_pins) {
     dacController.addChannel(i, ldac);
   }
 
 
-  for (unsigned int i = 0; i < sizeof(drdy)/sizeof(drdy[0]); i++) {
-      adcController.addBoard(adc_sync_pins[i], drdy[i], reset[i]);
-  }
+  adcController.addBoard(adc_sync_pins[0], drdy[0], reset[0]);
+  adcController.addBoard(adc_sync_pins[1], drdy[1], reset[1]);
+
+  
+  dacController.setup();
+  adcController.setup();
 }
 
 void loop() { userIOHandler.handleUserIO(); }

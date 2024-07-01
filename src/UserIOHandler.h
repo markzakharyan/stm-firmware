@@ -12,7 +12,7 @@ struct UserIOHandler {
 
   UserIOHandler(FunctionRegistry& r) : registry(r) {}
 
-  void initialize() {
+  void setup() {
     Serial.begin(115200);
     REGISTER_MEMBER_FUNCTION_0(registry, this, nop, "NOP");
   }

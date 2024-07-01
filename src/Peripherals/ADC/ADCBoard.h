@@ -34,15 +34,14 @@ class ADCBoard {
       delay(1);
     }
   }
-  
 
  public:
   ADCBoard(PeripheralCommsController &commsController, int sync_pin,
-               int data_ready_pin, int reset_pin)
-        : sync_pin(sync_pin),
-          data_ready_pin(data_ready_pin),
-          reset_pin(reset_pin),
-          commsController(commsController) {}
+           int data_ready_pin, int reset_pin)
+      : sync_pin(sync_pin),
+        data_ready_pin(data_ready_pin),
+        reset_pin(reset_pin),
+        commsController(commsController) {}
 
   void setup() {
     pinMode(reset_pin, OUTPUT);
@@ -64,10 +63,11 @@ class ADCBoard {
     byte o2;
     byte o3;
     int ovr;
+    commsController.beginTransaction();
     digitalWrite(sync_pin, LOW);
     commsController.sendByte(
         0x38 + channel_index);  // Indicates comm register to access
-                                      // mode register with channel
+                                // mode register with channel
     digitalWrite(sync_pin, HIGH);
     digitalWrite(sync_pin, LOW);
     commsController.sendByte(0x48);  // Indicates mode register to start
@@ -75,9 +75,9 @@ class ADCBoard {
     digitalWrite(sync_pin, HIGH);
     waitDataReady();  // Waits until convertion finishes
     digitalWrite(sync_pin, LOW);
-    commsController.sendByte(
-        0x48 + channel_index);  // Indcates comm register to read data
-                                      // channel data register
+    commsController.sendByte(0x48 +
+                             channel_index);  // Indcates comm register to read
+                                              // data channel data register
     digitalWrite(sync_pin, HIGH);
     digitalWrite(sync_pin, LOW);
     statusbyte = commsController.receiveByte();  // Reads Channel 'ch' status
@@ -88,6 +88,7 @@ class ADCBoard {
     digitalWrite(sync_pin, LOW);
     o3 = commsController.receiveByte();  // Reads second byte
     digitalWrite(sync_pin, HIGH);
+    commsController.endTransaction();
 
     ovr = statusbyte & 1;
     switch (ovr) {

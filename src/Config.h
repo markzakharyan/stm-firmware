@@ -1,6 +1,6 @@
-// Config.h
-#ifndef CONFIG_H
-#define CONFIG_H
+#pragma once
+#include <Arduino.h>
+#include <SPI.h>
 
 
 #define SERIAL_BAUD_RATE 115200
@@ -20,9 +20,10 @@ const int data = 6; // data indicator LED
 const int err = 11;
 
 
-const static SPISettings DAC_SPI_SETTINGS(35000000, MSBFIRST, SPI_MODE1);
+const static SPISettings DAC_SPI_SETTINGS(20000000, MSBFIRST, SPI_MODE1);
+const static SPISettings ADC_SPI_SETTINGS(4000000, MSBFIRST, SPI_MODE3);
+
+#define NUM_CHANNELS_PER_DAC_BOARD 4
+#define NUM_CHANNELS_PER_ADC_BOARD 4
 
 const float DEFAULT_DAC_FULL_SCALE = 10.0;
-
-
-#endif // CONFIG_H

@@ -1,6 +1,7 @@
 {
   "files.associations": {
-    "vector": "cpp",
+    "functional": "cpp",
+    "any": "cpp",
     "array": "cpp",
     "atomic": "cpp",
     "*.tcc": "cpp",
@@ -23,9 +24,9 @@
     "list": "cpp",
     "unordered_map": "cpp",
     "unordered_set": "cpp",
+    "vector": "cpp",
     "exception": "cpp",
     "algorithm": "cpp",
-    "functional": "cpp",
     "iterator": "cpp",
     "map": "cpp",
     "memory": "cpp",
@@ -54,7 +55,7 @@
     "streambuf": "cpp",
     "thread": "cpp",
     "cinttypes": "cpp",
-    "typeinfo": "cpp"
-  },
-  "C_Cpp.clang_format_fallbackStyle": "Google"
+    "typeinfo": "cpp",
+    "variant": "cpp"
+  }
 }

@@ -212,6 +212,11 @@ class ADCController {
         .startContinuousConversion(getChannelIndexFromGlobalIndex(adc_channel));
   }
 
+  inline static void startSingleConversion(int adc_channel) {
+    adc_boards[getBoardIndexFromGlobalIndex(adc_channel)]
+        .startSingleConversion(getChannelIndexFromGlobalIndex(adc_channel));
+  }
+
   inline static OperationResult continuousConvertRead(int channel_index,
                                                       uint32_t frequency_us,
                                                       uint32_t duration_us) {

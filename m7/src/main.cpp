@@ -161,4 +161,17 @@ void loop()
       Serial.println("Failed to write calibration data to flash!");
     }
   }
+  if (m7HasByteMessage())
+  {
+    uint8_t response[BYTE_BUFFER_SIZE];
+    size_t size;
+    if (m7ReceiveByte(response, size))
+    {
+      if (size > 0)
+      {
+        size--; // Decrease size to exclude the last character
+      }
+      Serial.write(response, size);
+    }
+  }
 }

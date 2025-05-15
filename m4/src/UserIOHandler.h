@@ -6,6 +6,7 @@
 
 #include "FunctionRegistry/FunctionRegistry.h"
 #include "Peripherals/OperationResult.h"
+#include "Utils/shared_memory.h"
 
 struct UserIOHandler {
   static void setup() {

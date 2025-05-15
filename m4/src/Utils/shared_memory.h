@@ -3,12 +3,21 @@
 #include "Utils/CalibrationData.h"
 
 #define CHAR_BUFFER_SIZE 256
+
+#define BYTE_BUFFER_SIZE 256
+
 #define FLOAT_BUFFER_SIZE 256
 #define VOLTAGE_BUFFER_SIZE 2048
 #define MAX_MESSAGE_SIZE 256
 
 struct CharCircularBuffer {
   char buffer[CHAR_BUFFER_SIZE];
+  volatile uint32_t read_index;
+  volatile uint32_t write_index;
+};
+
+struct ByteCircularBuffer {
+  uint8_t buffer[BYTE_BUFFER_SIZE];
   volatile uint32_t read_index;
   volatile uint32_t write_index;
 };
@@ -32,6 +41,8 @@ struct SharedMemory {
   FloatCircularBuffer m4_to_m7_float_buffer;
 
   VoltageCircularBuffer m4_to_m7_voltage_buffer;
+
+  ByteCircularBuffer m4_to_m7_byte_buffer;
 
   volatile bool stop_flag;
 
@@ -60,6 +71,14 @@ bool getStopFlag();
 bool m4SendChar(const char* data, size_t length);
 bool m4ReceiveChar(char* data, size_t& length);
 bool m4HasCharMessage();
+
+
+
+bool m4SendByte(const uint8_t* data, size_t length);
+bool m7ReceiveByte(uint8_t* data, size_t& length);
+bool m7HasByteMessage();
+
+
 
 bool m4SendFloat(const float* data, size_t length);
 

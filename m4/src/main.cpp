@@ -5,14 +5,12 @@
 #include "FunctionRegistry/FunctionRegistryHelpers.h"
 #include "Peripherals/ADC/ADCController.h"
 #include "Peripherals/DAC/DACController.h"
-#include "Peripherals/God.h"
 #include "Peripherals/PeripheralCommsController.h"
 #include <vector>
 #include "UserIOHandler.h"
 
 #include "Utils/shared_memory.h"
 
-#include "Peripherals/God2D.h"
 
 
 void setup() {
@@ -27,7 +25,7 @@ void setup() {
   UserIOHandler::setup();
 
   PeripheralCommsController::setup();
-
+  
 
   for (int i : dac_cs_pins) {
     DACController::addChannel(i);
@@ -39,9 +37,6 @@ void setup() {
 
   DACController::setup();
   ADCController::setup();
-
-  God::setup();
-  God2D::setup();
   
   // wait for calibration data to be loaded
   while (!isBootComplete());

@@ -44,7 +44,7 @@
 #define BIT_MODE24 1 << 1
 
 // SELECT ADC RESOLUTION HERE
-#define BIT_MODE BIT_MODE24
+#define BIT_MODE BIT_MODE16
 
 // Operational Mode Register, Table 12
 // mode bits (MD2, MD1, MD0 bits)
@@ -66,7 +66,7 @@
 #define ADC2DOUBLE24(vin) (FSR * ((double)vin - (ADCRES24 / 2.0)) / ADCRES24)
 
 // SELECT ADC RESOLUTION HERE
-#define ADC2DOUBLE(vin) ADC2DOUBLE24(vin)
+#define ADC2DOUBLE(vin) ADC2DOUBLE16(vin)
 
 class ADCBoard {
  private:
@@ -218,39 +218,36 @@ class ADCBoard {
     commsController.transferADC(data, 2);
   }
 
-  uint32_t getConversionData(int adc_channel) {
-    byte data[4];
+  uint16_t getConversionData(int adc_channel) {
+    byte data[3];
     data[0] = READ | ADDR_CHANNELDATA(adc_channel);
 
     commsController.transferADC(data, 4);
 
-    uint32_t upper = data[1];
-    uint32_t lower = data[2];
-    uint32_t last = data[3];
+    uint16_t upper = data[1];
+    uint16_t lower = data[2];
 
-    uint32_t result = upper << 16 | lower << 8 | last;
+    uint16_t result = upper << 8 | lower;
 
     return result;
   }
 
-  uint32_t getConversionDataNoTransaction(int adc_channel) {
-    byte data[4];
+  uint16_t getConversionDataNoTransaction(int adc_channel) {
+    byte data[3];
 
     // setup communication register for reading channel data
     data[0] = READ | ADDR_CHANNELDATA(adc_channel);
     data[1] = 0;
     data[2] = 0;
-    data[3] = 0;
 
     // write to the communication register
     // read upper and lower bytes of channel data register (16 bit mode)
     commsController.transferADCNoTransaction(data, 4);
 
-    uint32_t upper = data[1];
-    uint32_t lower = data[2];
-    uint32_t last = data[3];
+    uint16_t upper = data[1];
+    uint16_t lower = data[2];
 
-    uint32_t result = upper << 16 | lower << 8 | last;
+    uint16_t result = upper << 8 | lower;
 
     return result;
     //return 0;

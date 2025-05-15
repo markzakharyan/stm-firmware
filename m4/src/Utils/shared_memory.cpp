@@ -24,6 +24,9 @@ bool initSharedMemory() {
   shared_memory->m4_to_m7_voltage_buffer.read_index = 0;
   shared_memory->m4_to_m7_voltage_buffer.write_index = 0;
 
+  shared_memory->m4_to_m7_byte_buffer.read_index = 0;
+  shared_memory->m4_to_m7_byte_buffer.write_index = 0;
+
   // Reset stop_flag
   shared_memory->stop_flag = false;
 
@@ -159,6 +162,105 @@ static bool charBufferHasMessage(CharCircularBuffer* buffer) {
   return (buffer->read_index != buffer->write_index);
 }
 
+
+
+
+
+
+static void writeUint32ToByteBuffer(ByteCircularBuffer* buffer,
+                                    uint32_t& index,
+                                    uint32_t value) {
+  for (int i = 0; i < 4; i++) {
+    buffer->buffer[index] = static_cast<char>((value >> (8 * i)) & 0xFF);
+    index = (index + 1) % BYTE_BUFFER_SIZE; // advance by 1 byte
+  }
+}
+
+static uint32_t readUint32FromByteBuffer(ByteCircularBuffer* buffer,
+                                         uint32_t& index) {
+  uint32_t value = 0;
+  for (int i = 0; i < 4; i++) {
+    value |= (static_cast<unsigned char>(buffer->buffer[index]) << (8 * i));
+    index = (index + 1) % BYTE_BUFFER_SIZE; // advance by 1 byte
+  }
+  return value;
+}
+
+// ---------------------------------------------------------------------------
+//  Char buffer operations
+// ---------------------------------------------------------------------------
+static bool byteBufferSend(ByteCircularBuffer* buffer, const uint8_t* data,
+                           size_t length) {
+
+  // Compute available space in the ring buffer
+  // We need to store 4 bytes for 'length' + the actual payload
+  uint32_t available_space =
+      (buffer->read_index - buffer->write_index - 1 + BYTE_BUFFER_SIZE) %
+      BYTE_BUFFER_SIZE;
+
+  // If not enough space, fail
+  if (length + 4 > available_space) {
+    return false;
+  }
+
+  // Write the 4-byte message length, byte by byte
+  uint32_t write_index = buffer->write_index;
+  writeUint32ToByteBuffer(buffer, write_index, static_cast<uint32_t>(length));
+
+  // Write the actual message bytes
+  for (size_t i = 0; i < length; i++) {
+    buffer->buffer[write_index] = data[i];
+    write_index = (write_index + 1) % BYTE_BUFFER_SIZE;
+  }
+
+  // Update the official write_index
+  buffer->write_index = write_index;
+  return true;
+}
+
+static bool byteBufferReceive(ByteCircularBuffer* buffer, uint8_t* data,
+                              size_t& length) {
+  // If buffer empty, no messages
+  if (buffer->read_index == buffer->write_index) {
+    length = 0;
+    return false;
+  }
+
+  // Read the 4-byte length
+  uint32_t read_index = buffer->read_index;
+  uint32_t msg_length = readUint32FromByteBuffer(buffer, read_index);
+
+  // Check if caller's buffer is large enough
+  if (msg_length > length) {
+    // Let the caller know the required size
+    length = msg_length;
+    return false;
+  }
+
+  // Copy the message into 'data'
+  for (size_t i = 0; i < msg_length; i++) {
+    data[i] = buffer->buffer[read_index];
+    read_index = (read_index + 1) % BYTE_BUFFER_SIZE;
+  }
+
+  // Update read_index
+  buffer->read_index = read_index;
+
+  // Tell caller how many bytes we read
+  length = msg_length;
+  return true;
+}
+
+static bool byteBufferHasMessage(ByteCircularBuffer* buffer) {
+  return (buffer->read_index != buffer->write_index);
+}
+
+
+
+
+
+
+
 // ---------------------------------------------------------------------------
 //  Float buffer operations (unchanged from original)
 //  - The first float is used to store the message length
@@ -293,6 +395,8 @@ bool m4HasCharMessage() {
   return charBufferHasMessage(&shared_memory->m7_to_m4_char_buffer);
 }
 
+
+
 // M4 float functions
 bool m4SendFloat(const float* data, size_t length) {
   return floatBufferSend(&shared_memory->m4_to_m7_float_buffer, data, length);
@@ -331,6 +435,22 @@ bool m7ReceiveChar(char* data, size_t& length) {
 bool m7HasCharMessage() {
   return charBufferHasMessage(&shared_memory->m4_to_m7_char_buffer);
 }
+
+
+bool m4SendByte(const uint8_t* data, size_t length) {
+  return byteBufferSend(&shared_memory->m4_to_m7_byte_buffer, data, length);
+}
+
+
+bool m7ReceiveByte(uint8_t* data, size_t& length) {
+  return byteBufferReceive(&shared_memory->m4_to_m7_byte_buffer, data, length);
+}
+bool m7HasByteMessage() {
+  return byteBufferHasMessage(&shared_memory->m4_to_m7_byte_buffer);
+}
+
+
+
 
 // ---------------------------------------------------------------------------
 //  M7 float functions
